@@ -2,45 +2,46 @@ import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.fasterxml.jackson.module.kotlin.readValue
 import java.net.URL
 
-//Pull hardcoded variables to main function
 //Pull hardcoded variables out
 //Allow variable pass in
 
 fun main(args: Array<String>) {
-    val cards = getEpicsIds().map { getCards(it) }.flatten()
+    val params = Params(REPO_OWNER, REPO_ID, REPO_NAME, TOKEN)
+
+    val cards = getEpicsIds(params).map { getCards(it, params) }.flatten()
     println(cards.joinToString(" "))
 }
 
 
-private fun getEpicsIds(): List<Int> {
-    val url = "https://api.zenhub.io/p1/repositories/$REPO_ID/epics?access_token=$TOKEN"
+private fun getEpicsIds(params: Params): List<Int> {
+    val url = "https://api.zenhub.io/p1/repositories/${params.repoId}/epics?access_token=${params.token}"
     val response = URL(url).readText()
 
     val issues: EpicIssues = jacksonObjectMapper().readValue(response)
     return issues.epic_issues.map { it.issue_number }
 }
 
-private fun getCards(id: Int): List<Card> {
-    val epic = getEpic(id)
-    val epicTitle = getGithubIssue(id).title
-    return epic.issues.map { createCard(it, epicTitle) }
+private fun getCards(id: Int, params: Params): List<Card> {
+    val epic = getEpic(id, params)
+    val epicTitle = getGithubIssue(id, params).title
+    return epic.issues.map { createCard(it, epicTitle, params) }
 }
 
-private fun getEpic(id: Int): Epic {
-    val url = "https://api.zenhub.io/p1/repositories/$REPO_ID/epics/$id?access_token=$TOKEN"
+private fun getEpic(id: Int, params: Params): Epic {
+    val url = "https://api.zenhub.io/p1/repositories/${params.repoId}/epics/$id?access_token=${params.token}"
     val response = URL(url).readText()
 
     return jacksonObjectMapper().readValue(response)
 }
 
-private fun createCard(issue: ZenIssue, epicTitle: String): Card {
-    val githubIssue = getGithubIssue(issue.issue_number)
+private fun createCard(issue: ZenIssue, epicTitle: String, params: Params): Card {
+    val githubIssue = getGithubIssue(issue.issue_number, params)
 
     return Card(githubIssue.id, githubIssue.number, githubIssue.title, githubIssue.body, issue.estimate?.value ?: 0, epicTitle, githubIssue.labels)
 }
 
-private fun getGithubIssue(id: Int) : GithubIssue {
-    val url = "https://api.github.com/repos/$REPO_OWNER/$REPO_NAME/issues/$id"
+private fun getGithubIssue(id: Int, params: Params) : GithubIssue {
+    val url = "https://api.github.com/repos/${params.owner}/${params.repoName}/issues/$id"
     val response = URL(url).readText()
 
     return jacksonObjectMapper().readValue(response)

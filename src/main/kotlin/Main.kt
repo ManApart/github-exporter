@@ -2,16 +2,14 @@ import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.fasterxml.jackson.module.kotlin.readValue
 import java.net.URL
 
-//Pull hardcoded variables out
-//Allow variable pass in
+//Eventually replace required repo id with all repos for an owner
 
 fun main(args: Array<String>) {
-    val params = Params(REPO_OWNER, REPO_ID, REPO_NAME, TOKEN)
+    val params = Params(args)
 
     val cards = getEpicsIds(params).map { getCards(it, params) }.flatten()
     println(cards.joinToString(" "))
 }
-
 
 private fun getEpicsIds(params: Params): List<Int> {
     val url = "https://api.zenhub.io/p1/repositories/${params.repoId}/epics?access_token=${params.token}"

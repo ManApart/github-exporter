@@ -1,6 +1,6 @@
 import api.MockApi
+import org.junit.Assert.assertEquals
 import org.junit.Test
-import kotlin.test.assertEquals
 
 class CSVTest {
 

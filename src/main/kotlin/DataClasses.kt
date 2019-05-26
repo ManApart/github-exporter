@@ -1,7 +1,10 @@
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 
 @JsonIgnoreProperties(ignoreUnknown = true)
-data class GithubRepo(val id: Int, val name: String, val description: String)
+data class GithubRepo(val id: Int, val name: String, val description: String? = "", val owner: GithubOwner)
+
+@JsonIgnoreProperties(ignoreUnknown = true)
+data class GithubOwner(val id: Int, val login: String)
 
 data class EpicIssues(val epic_issues: List<Epic>)
 

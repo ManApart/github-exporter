@@ -8,7 +8,7 @@ class CSVTest {
     fun doThing() {
         val api = MockApi()
         val cardPrinter = CardPrinter(api)
-        val cards = cardPrinter.getCards()
+        val cards = cardPrinter.getCards("owner")
 
         val expected = """
         10|10|This is a title for 10|This is a description for 10|1|This is a title for 1
@@ -20,6 +20,15 @@ class CSVTest {
         31|31|This is a title for 31|This is a description for 31|1|This is a title for 3
         32|32|This is a title for 32|This is a description for 32|2|This is a title for 3
         33|33|This is a title for 33|This is a description for 33|3|This is a title for 3
+        40|40|This is a title for 40|This is a description for 40|1|This is a title for 4
+        41|41|This is a title for 41|This is a description for 41|2|This is a title for 4
+        42|42|This is a title for 42|This is a description for 42|3|This is a title for 4
+        51|51|This is a title for 51|This is a description for 51|1|This is a title for 5
+        52|52|This is a title for 52|This is a description for 52|2|This is a title for 5
+        53|53|This is a title for 53|This is a description for 53|3|This is a title for 5
+        61|61|This is a title for 61|This is a description for 61|1|This is a title for 6
+        62|62|This is a title for 62|This is a description for 62|2|This is a title for 6
+        63|63|This is a title for 63|This is a description for 63|3|This is a title for 6
         """.trimIndent()
 
         val actual = cards.joinToString("\n") {it.print()}

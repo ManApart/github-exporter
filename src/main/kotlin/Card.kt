@@ -1,12 +1,38 @@
-data class Card(val id: Int, val number: Int, val title: String, val description: String, val estimate: Int, val epicTitle: String, val labels: List<Label>) {
+data class Card(val id: Int,
+                val repoName: String,
+                val number: Int,
+                val title: String,
+                val description: String,
+                val estimate: Int,
+                val epicTitle: String,
+                val milestone: String,
+                val status: String,
+                val assignees: List<String>,
+                val labels: List<String>
+) {
 
-    fun print() : String {
-        return listOf(id.toString(), number.toString(), title, description, estimate.toString(), epicTitle, labels.joinToString(","))
+    //Card could have multiple epics
+    fun printHeaderRow(): String {
+        return "Issue ID|Repo Name|Issue Number|Issue Title|Description|Estimate|Epic Title|Milestone Title|Status|Assignees|Labels"
+    }
+
+    fun print(): String {
+        return listOf(
+                id.toString(),
+                repoName,
+                number.toString(),
+                title,
+                description,
+                estimate.toString(),
+                epicTitle,
+                milestone,
+                status,
+                assignees.joinToString(","),
+                labels.joinToString(",")
+
+        )
                 .joinToString("|")
-                .dropLast(1)
     }
 
-    fun printHeaderRow() : String {
-        return "ID|Number|Title|Description|Estimate|Epic|Labels"
-    }
+
 }

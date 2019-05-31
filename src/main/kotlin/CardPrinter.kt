@@ -15,6 +15,7 @@ class CardPrinter(private val api: Api) {
     fun printCards(cards: List<Card>) {
         val fileName = "card_results_${System.currentTimeMillis()}.csv"
         File(fileName).printWriter().use { out ->
+            out.println(cards.first().printHeaderRow())
             out.println(cards.joinToString("\n") { it.print() })
         }
 //        println(cards.joinToString("\n") {it.print()})
@@ -31,9 +32,19 @@ class CardPrinter(private val api: Api) {
 
     private fun createCard(issue: ZenIssue, repoOwner: String, repoName: String, epicTitle: String): Card {
         val githubIssue = api.getGithubIssue(repoOwner, repoName, issue.issue_number)
+        val assignees = githubIssue.assignees.map { it.login }
+        val labels = githubIssue.labels.map { it.name }
+        val description = cleanNewLines(githubIssue.body)
 
-        return Card(githubIssue.id, githubIssue.number, githubIssue.title, githubIssue.body, issue.estimate?.value
-                ?: 0, epicTitle, githubIssue.labels)
+        return Card(githubIssue.id, repoName, githubIssue.number, githubIssue.title, description, issue.estimate?.value
+                ?: 0, epicTitle, githubIssue.milestone?.title ?: "", issue.pipeline?.name ?: "None", assignees, labels)
     }
 
+
+}
+
+fun cleanNewLines(input: String): String {
+   return input
+           .replace("\n", "\\n")
+           .replace("\r", "\\n")
 }

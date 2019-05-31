@@ -1,8 +1,6 @@
 import api.LiveApi
 import api.MockApi
 
-//Eventually replace required repo id with all repos for an owner
-
 fun main(args: Array<String>) {
     val params = Params(args)
     val api = if (params.mock) {MockApi()} else { LiveApi(params)}

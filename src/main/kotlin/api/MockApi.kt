@@ -4,7 +4,9 @@ import Epic
 import Estimate
 import GithubIssue
 import GithubRepo
-import GithubOwner
+import GithubUser
+import Milestone
+import Pipeline
 import ZenIssue
 
 //Make private vals match override, default function provide private vals
@@ -52,16 +54,16 @@ private fun defaultEpics(): Map<Int, Map<Int, Epic>> {
 
 private fun defaultIssues(repoId: Int, epicId: Int): List<ZenIssue> {
     return listOf(
-            ZenIssue(epicId + 1, repoId, Estimate(1), false),
-            ZenIssue(epicId + 2, repoId, Estimate(2), false),
-            ZenIssue(epicId + 3, repoId, Estimate(3), false)
+            ZenIssue(epicId + 1, repoId, Estimate(1), false, Pipeline("id", "pipeline")),
+            ZenIssue(epicId + 2, repoId, Estimate(2), false, Pipeline("id", "pipeline")),
+            ZenIssue(epicId + 3, repoId, Estimate(3), false, Pipeline("id", "pipeline"))
     )
 }
 
 private fun defaultGithubRepos(): Map<String, List<GithubRepo>> {
     return mapOf("owner" to listOf(
-            GithubRepo(55, "repoA", "A repo", GithubOwner(1, "owner")),
-            GithubRepo(56, "repoB", "Another repo", GithubOwner(1, "owner"))
+            GithubRepo(55, "repoA", "A repo", GithubUser(1, "owner")),
+            GithubRepo(56, "repoB", "Another repo", GithubUser(1, "owner"))
     ))
 }
 
@@ -106,5 +108,5 @@ private fun defaultGithubIssues(): Map<String, Map<String, Map<Int, GithubIssue>
 }
 
 private fun defaultGithubIssueForEpic(issueId: Int): GithubIssue {
-    return GithubIssue(issueId, issueId, "This is a title for $issueId", listOf(), "This is a description for $issueId")
+    return GithubIssue(issueId, issueId, "This is a title for $issueId", listOf(), "This is a description for $issueId", Milestone(123, "milestone"), listOf())
 }

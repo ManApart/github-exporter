@@ -1,7 +1,7 @@
 import api.Api
 import java.io.File
 
-class CardPrinter(private val api: Api) {
+class CardPrinter(private val api: Api, private val previousCards: Map<String, Map<Int, Card>>) {
 
     fun getCards(owner: String): List<Card> {
         return api.getGithubRepos(owner).map { repo ->
@@ -26,8 +26,21 @@ class CardPrinter(private val api: Api) {
         val epicTitle = api.getGithubIssue(repo.owner.login, repo.name, epicId).title
         println("Getting info for epic $epicTitle")
         return epic.issues.map {
-            createCard(it, repo.owner.login, repo.name, epicTitle)
+            getLatestCardInfo(it, repo.owner.login, repo.name, epicTitle)
         }
+    }
+
+    private fun getLatestCardInfo(issue: ZenIssue, repoOwner: String, repoName: String, epicTitle: String): Card {
+        val previousCard = previousCards[repoName]?.get(issue.issue_number)
+        return if (previousCard != null && isUpToDate(previousCard, issue)) {
+            previousCard
+        } else {
+            createCard(issue, repoOwner, repoName, epicTitle)
+        }
+    }
+
+    private fun isUpToDate(card: Card, issue: ZenIssue): Boolean {
+        return card.status.toLowerCase() == "closed" && "closed" == issue.pipeline?.name?.toLowerCase()
     }
 
     private fun createCard(issue: ZenIssue, repoOwner: String, repoName: String, epicTitle: String): Card {

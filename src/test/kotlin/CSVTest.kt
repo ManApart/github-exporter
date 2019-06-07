@@ -7,7 +7,7 @@ class CSVTest {
     @Test
     fun outputMatches() {
         val api = MockApi()
-        val cardPrinter = CardPrinter(api)
+        val cardPrinter = CardPrinter(api, mapOf())
         val cards = cardPrinter.getCards("owner")
 
         val expected = """

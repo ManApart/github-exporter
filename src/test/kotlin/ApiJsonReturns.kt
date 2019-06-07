@@ -95,7 +95,8 @@ const val GITHUB_REPO = """
     }
 """
 
-const val GITHUB_ISSUE = """
+const val GITHUB_ISSUE =
+        """
 {
     "url": "https://api.github.com/repos/rob-h-m/robs-smrt-test/issues/5",
     "repository_url": "https://api.github.com/repos/rob-h-m/robs-smrt-test",

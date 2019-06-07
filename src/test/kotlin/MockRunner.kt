@@ -7,7 +7,7 @@ class MockRunner {
     @Test
     fun mockedMain() {
         val api = MockApi()
-        val cardPrinter = CardPrinter(api)
+        val cardPrinter = CardPrinter(api, mapOf())
         val cards = cardPrinter.getCards("owner")
         cardPrinter.printCards(cards)
         println("Done")

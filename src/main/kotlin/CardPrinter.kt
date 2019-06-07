@@ -2,6 +2,9 @@ import api.Api
 import java.io.File
 
 class CardPrinter(private val api: Api, private val previousCards: Map<String, Map<Int, Card>>) {
+    var cardsPreserved = 0
+    var cardsFetched = 0
+
 
     fun getCards(owner: String): List<Card> {
         return api.getGithubRepos(owner).map { repo ->
@@ -33,8 +36,10 @@ class CardPrinter(private val api: Api, private val previousCards: Map<String, M
     private fun getLatestCardInfo(issue: ZenIssue, repoOwner: String, repoName: String, epicTitle: String): Card {
         val previousCard = previousCards[repoName]?.get(issue.issue_number)
         return if (previousCard != null && isUpToDate(previousCard, issue)) {
+            cardsPreserved++
             previousCard
         } else {
+            cardsFetched++
             createCard(issue, repoOwner, repoName, epicTitle)
         }
     }

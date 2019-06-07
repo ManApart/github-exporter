@@ -8,7 +8,7 @@ fun main(args: Array<String>) {
     val cardPrinter = CardPrinter(api, previousCards)
     val cards = cardPrinter.getCards(params.owner)
     cardPrinter.printCards(cards)
-    println("Done")
+    println("Printed ${cardPrinter.cardsFetched} updated cards and ${cardPrinter.cardsPreserved} non-updated cards.")
 }
 
 

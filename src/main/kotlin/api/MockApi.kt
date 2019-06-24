@@ -18,19 +18,19 @@ class MockApi(
 ) : Api {
 
     override fun getEpicsIds(repoId: Int): List<Int> {
-        return epicIds[repoId]!!
+        return epicIds.getValue(repoId)
     }
 
-    override fun getEpic(repoId: Int, epicId: Int): Epic {
-        return epics[repoId]!![epicId]!!
+    override fun getEpic(repoId: Int, epicId: Int): Epic? {
+        return epics.getValue(repoId).getValue(epicId)
     }
 
     override fun getGithubRepos(owner: String): List<GithubRepo> {
         return githubRepos.getValue(owner)
     }
 
-    override fun getGithubIssue(owner: String, repoName: String, issueId: Int): GithubIssue {
-        return githubIssues[owner]!![repoName]!![issueId]!!
+    override fun getGithubIssue(owner: String, repoName: String, issueId: Int): GithubIssue? {
+        return githubIssues.getValue(owner).getValue(repoName).getValue(issueId)
     }
 }
 

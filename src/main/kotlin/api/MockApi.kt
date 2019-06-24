@@ -14,7 +14,7 @@ class MockApi(
         private val epicIds: Map<Int, List<Int>> = defaultEpicIds(),
         private val epics: Map<Int, Map<Int, Epic>> = defaultEpics(),
         private val githubRepos: Map<String, List<GithubRepo>> = defaultGithubRepos(),
-        private val githubIssues: Map<String, Map<String, Map<Int, GithubIssue>>> = defaultGithubIssues()
+        private val githubIssues: Map<String, Map<String, List<GithubIssue>>> = defaultGithubIssues()
 ) : Api {
 
     override fun getEpicsIds(repoId: Int): List<Int> {
@@ -29,8 +29,8 @@ class MockApi(
         return githubRepos.getValue(owner)
     }
 
-    override fun getGithubIssue(owner: String, repoName: String, issueId: Int): GithubIssue? {
-        return githubIssues.getValue(owner).getValue(repoName).getValue(issueId)
+    override fun getGithubIssues(owner: String, repoName: String): List<GithubIssue> {
+        return githubIssues.getValue(owner).getValue(repoName)
     }
 }
 
@@ -67,41 +67,41 @@ private fun defaultGithubRepos(): Map<String, List<GithubRepo>> {
     ))
 }
 
-private fun defaultGithubIssues(): Map<String, Map<String, Map<Int, GithubIssue>>> {
+private fun defaultGithubIssues(): Map<String, Map<String, List<GithubIssue>>> {
     return mapOf(
             "owner" to
                     mapOf(
-                            "repoA" to mapOf(
-                                    1 to defaultGithubIssueForEpic(1),
-                                    11 to defaultGithubIssueForEpic(10),
-                                    12 to defaultGithubIssueForEpic(11),
-                                    13 to defaultGithubIssueForEpic(12),
+                            "repoA" to listOf(
+                                    defaultGithubIssueForEpic(1),
+                                    defaultGithubIssueForEpic(10),
+                                    defaultGithubIssueForEpic(11),
+                                    defaultGithubIssueForEpic(12),
 
-                                    2 to defaultGithubIssueForEpic(2),
-                                    21 to defaultGithubIssueForEpic(21),
-                                    22 to defaultGithubIssueForEpic(22),
-                                    23 to defaultGithubIssueForEpic(23),
+                                    defaultGithubIssueForEpic(2),
+                                    defaultGithubIssueForEpic(21),
+                                    defaultGithubIssueForEpic(22),
+                                    defaultGithubIssueForEpic(23),
 
-                                    3 to defaultGithubIssueForEpic(3),
-                                    31 to defaultGithubIssueForEpic(31),
-                                    32 to defaultGithubIssueForEpic(32),
-                                    33 to defaultGithubIssueForEpic(33)
+                                    defaultGithubIssueForEpic(3),
+                                    defaultGithubIssueForEpic(31),
+                                    defaultGithubIssueForEpic(32),
+                                    defaultGithubIssueForEpic(33)
                             ),
-                            "repoB" to mapOf(
-                                    4 to defaultGithubIssueForEpic(4),
-                                    41 to defaultGithubIssueForEpic(40),
-                                    42 to defaultGithubIssueForEpic(41),
-                                    43 to defaultGithubIssueForEpic(42),
+                            "repoB" to listOf(
+                                    defaultGithubIssueForEpic(4),
+                                    defaultGithubIssueForEpic(40),
+                                    defaultGithubIssueForEpic(41),
+                                    defaultGithubIssueForEpic(42),
 
-                                    5 to defaultGithubIssueForEpic(5),
-                                    51 to defaultGithubIssueForEpic(51),
-                                    52 to defaultGithubIssueForEpic(52),
-                                    53 to defaultGithubIssueForEpic(53),
+                                    defaultGithubIssueForEpic(5),
+                                    defaultGithubIssueForEpic(51),
+                                    defaultGithubIssueForEpic(52),
+                                    defaultGithubIssueForEpic(53),
 
-                                    6 to defaultGithubIssueForEpic(6),
-                                    61 to defaultGithubIssueForEpic(61),
-                                    62 to defaultGithubIssueForEpic(62),
-                                    63 to defaultGithubIssueForEpic(63)
+                                    defaultGithubIssueForEpic(6),
+                                    defaultGithubIssueForEpic(61),
+                                    defaultGithubIssueForEpic(62),
+                                    defaultGithubIssueForEpic(63)
                             )
                     )
     )

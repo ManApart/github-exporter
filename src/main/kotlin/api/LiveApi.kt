@@ -49,14 +49,14 @@ class LiveApi(private val params: Params) : Api {
         }
     }
 
-    override fun getGithubIssue(owner: String, repoName: String, issueId: Int): GithubIssue? {
-        val url = "https://api.github.com/repos/$owner/$repoName/issues/$issueId"
+    override fun getGithubIssues(owner: String, repoName: String): List<GithubIssue> {
+        val url = "https://api.github.com/repos/$owner/$repoName/issues"
         return try {
             val response = makeCall(url)
             jacksonObjectMapper().readValue(response)
         } catch (e: Exception) {
-            println("Couldn't fetch Github Issue $issueId for $repoName")
-            null
+            println("Couldn't fetch Github Issues for $repoName")
+            listOf()
         }
     }
 

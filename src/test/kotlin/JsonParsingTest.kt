@@ -18,6 +18,12 @@ class JsonParsingTest {
     }
 
     @Test
+    fun githubIssues() {
+        val issues: List<GithubIssue> = jacksonObjectMapper().readValue(GITHUB_REPO_ISSUES)
+        assertNotNull(issues)
+    }
+
+    @Test
     fun zenhubEpicIssues() {
         val epicIssues: EpicIssues = jacksonObjectMapper().readValue(ZENHUB_EPIC_ISSUES)
         assertNotNull(epicIssues)

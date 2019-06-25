@@ -32,6 +32,11 @@ class MockApi(
     override fun getGithubIssues(owner: String, repoName: String): List<GithubIssue> {
         return githubIssues.getValue(owner).getValue(repoName)
     }
+
+    override fun getGithubIssue(owner: String, repoName: String, issueNumber: Int): GithubIssue? {
+        return githubIssues.getValue(owner).getValue(repoName).firstOrNull { it.number == issueNumber }
+    }
+
 }
 
 private fun defaultEpicIds(): Map<Int, List<Int>> {
@@ -108,5 +113,5 @@ private fun defaultGithubIssues(): Map<String, Map<String, List<GithubIssue>>> {
 }
 
 private fun defaultGithubIssueForEpic(issueId: Int): GithubIssue {
-    return GithubIssue(issueId, issueId, "This is a title for $issueId", listOf(), "This is a description for $issueId", Milestone(123, "milestone"), listOf())
+    return GithubIssue(issueId, issueId, "This is a title for $issueId", listOf(), "This is a description for $issueId", Milestone(123, "milestone"), "updated at", null, listOf())
 }

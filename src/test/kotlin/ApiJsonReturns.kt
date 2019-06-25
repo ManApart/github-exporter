@@ -853,12 +853,12 @@ const val ZENHUB_EPIC_ISSUES = """
     "epic_issues": [
         {
             "issue_number": 4,
-            "repo_id": 187687182,
+            "repoId": 187687182,
             "issue_url": "https://github.com/rob-h-m/robs-smrt-test/issues/4"
         },
         {
             "issue_number": 15,
-            "repo_id": 187687182,
+            "repoId": 187687182,
             "issue_url": "https://github.com/rob-h-m/robs-smrt-test/issues/15"
         }
     ]
@@ -869,7 +869,7 @@ const val ZENHUB_EPIC = """
 {
     "issues": [
         {
-            "repo_id": 187687182,
+            "repoId": 187687182,
             "issue_number": 5,
             "estimate": {
                 "value": 1

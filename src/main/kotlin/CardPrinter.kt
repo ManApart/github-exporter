@@ -9,11 +9,16 @@ class CardPrinter(private val api: Api) {
         println("Finding cards for $owner")
         val repos = api.getGithubRepos(owner)
         println("Found ${repos.size} repos")
+
         val epics = getAllEpics(repos)
+        val zenIssueMap = createZenIssueMap(epics)
         println("Found ${epics.size} epics")
+
         val githubIssues = getAllGithubIssues(owner, repos)
+        val githubIssueMap = createGithubIssueMap(githubIssues)
         println("Found ${githubIssues.size} issues")
-        return getAllCards(githubIssues, epics)
+
+        return getAllCards(githubIssues, zenIssueMap, githubIssueMap)
     }
 
     private fun getAllEpics(repos: List<GithubRepo>): List<Epic> {
@@ -24,60 +29,52 @@ class CardPrinter(private val api: Api) {
         }.flatten()
     }
 
+    private fun createZenIssueMap(epics: List<Epic>): Map<Int, Map<Int, ZenIssue>> {
+        val map = mutableMapOf<Int, MutableMap<Int, ZenIssue>>()
+
+        epics.forEach { epic ->
+            epic.issues.forEach { issue ->
+                map.putIfAbsent(issue.repo_id, mutableMapOf())
+                map[issue.repo_id]!![issue.issue_number] = issue
+            }
+        }
+
+        return map
+    }
+
     private fun getAllGithubIssues(owner: String, repos: List<GithubRepo>): List<GithubIssue> {
         return repos.map { repo ->
             val issues = api.getGithubIssues(owner, repo.name)
             issues.forEach {
-                it.repo_id = repo.id
+                it.repoId = repo.id
                 it.repoName = repo.name
             }
             issues
         }.flatten()
     }
 
-    private fun getAllCards(githubIssues: List<GithubIssue>, epics: List<Epic>): List<Card> {
+    private fun createGithubIssueMap(issues: List<GithubIssue>): Map<Int, Map<Int, GithubIssue>> {
+        val map = mutableMapOf<Int, MutableMap<Int, GithubIssue>>()
+        issues.forEach { issue ->
+            map.putIfAbsent(issue.repoId, mutableMapOf())
+            map[issue.repoId]!![issue.number] = issue
+        }
+
+        return map
+    }
+
+    private fun getAllCards(githubIssues: List<GithubIssue>, zenIssueMap: Map<Int, Map<Int, ZenIssue>>, githubIssueMap: Map<Int, Map<Int, GithubIssue>>): List<Card> {
         return githubIssues.mapNotNull { githubIssue ->
-            getCardInfo(githubIssue, epics, githubIssues)
+            getCardInfo(githubIssue, zenIssueMap, githubIssueMap)
         }
     }
 
-    private fun getCardInfo(githubIssue: GithubIssue, epics: List<Epic>, githubIssues: List<GithubIssue>): Card? {
-        val epic = findEpic(githubIssue, epics)
-        val zenIssue = findZenIssue(epic, githubIssue)
-        val githubEpic = findGithubIssue(epic, githubIssues)
+    private fun getCardInfo(githubIssue: GithubIssue, zenIssueMap: Map<Int, Map<Int, ZenIssue>>, githubIssueMap: Map<Int, Map<Int, GithubIssue>>): Card? {
+        val zenIssue = zenIssueMap[githubIssue.repoId]?.get(githubIssue.number)
+        val githubEpic = githubIssueMap[githubIssue.repoId]?.get(githubIssue.number)
         val epicTitle = githubEpic?.title ?: "Unknown"
 
         return createCard(githubIssue, zenIssue, githubIssue.repoName, epicTitle)
-    }
-
-    private fun findEpic(githubIssue: GithubIssue, epics: List<Epic>): Epic? {
-        return epics.firstOrNull { epic ->
-            epic.issues.any {
-                matches(githubIssue, it)
-            }
-        }
-    }
-
-    private fun findZenIssue(epic: Epic?, githubIssue: GithubIssue): ZenIssue? {
-        return epic?.issues?.firstOrNull { zenIssue ->
-            matches(githubIssue, zenIssue)
-        }
-    }
-
-    private fun findGithubIssue(epic: Epic?, githubIssues: List<GithubIssue>): GithubIssue? {
-        return if (epic == null) {
-            null
-        } else {
-            githubIssues.firstOrNull { githubIssue ->
-                epic.issues.any { zenIssue ->
-                    matches(githubIssue, zenIssue)
-                }
-            }
-        }
-    }
-
-    private fun matches(githubIssue: GithubIssue, zenIssue: ZenIssue): Boolean {
-        return zenIssue.repo_id == githubIssue.repo_id && zenIssue.issue_number == githubIssue.number
     }
 
     private fun createCard(githubIssue: GithubIssue, zenIssue: ZenIssue?, repoName: String, epicTitle: String): Card? {
@@ -102,7 +99,6 @@ class CardPrinter(private val api: Api) {
             println("No cards to print")
         }
     }
-
 
 
 }

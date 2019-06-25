@@ -22,7 +22,7 @@ data class Pipeline(val pipeline_id: String = "", val name: String = "")
 @JsonIgnoreProperties(ignoreUnknown = true)
 data class GithubIssue(val id: Int, val number: Int, val title: String, val labels: List<Label>, val body: String, val milestone: Milestone?, val assignees: List<GithubUser> = listOf()) {
     var repoName = ""
-    var repo_id = 0
+    var repoId = 0
 }
 
 @JsonIgnoreProperties(ignoreUnknown = true)

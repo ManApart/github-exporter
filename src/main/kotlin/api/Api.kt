@@ -7,7 +7,8 @@ import GithubRepo
 interface Api {
     fun getEpicsIds(repoId: Int): List<Int>
     fun getEpic(repoId: Int, epicId: Int): Epic?
-    fun getGithubRepos(owner: String) : List<GithubRepo>
+    fun getGithubReposByOrg(org: String) : List<GithubRepo>
+    fun getGithubReposByUser(user: String) : List<GithubRepo>
     fun getGithubIssues(owner: String, repoName: String) : List<GithubIssue>
     fun getGithubIssue(owner: String, repoName: String, issueNumber: Int) : GithubIssue?
 }

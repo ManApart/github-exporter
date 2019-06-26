@@ -7,7 +7,7 @@ class CardPrinter(private val api: Api) {
 
     fun getCards(owner: String): List<Card> {
         println("Finding cards for $owner")
-        val repos = api.getGithubRepos(owner)
+        val repos = getRepos(owner)
         val repoMap = createRepoMap(repos)
         println("Found ${repos.size} repos")
 
@@ -20,6 +20,16 @@ class CardPrinter(private val api: Api) {
         println("Found ${githubIssues.size} issues")
 
         return getAllCards(githubIssues, zenIssueMap, githubIssueMap)
+    }
+
+    private fun getRepos(owner: String) : List<GithubRepo> {
+        val repos = api.getGithubReposByOrg(owner)
+        return if (repos.isNotEmpty()) {
+            repos
+        } else {
+            println("Trying as user instead of organization")
+            api.getGithubReposByUser(owner)
+        }
     }
 
     private fun createRepoMap(repos: List<GithubRepo>): Map<Int, GithubRepo> {

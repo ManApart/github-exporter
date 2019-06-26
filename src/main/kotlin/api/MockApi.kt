@@ -17,6 +17,7 @@ class MockApi(
         private val githubIssues: Map<String, Map<String, List<GithubIssue>>> = defaultGithubIssues()
 ) : Api {
 
+
     override fun getEpicsIds(repoId: Int): List<Int> {
         return epicIds.getValue(repoId)
     }
@@ -25,8 +26,12 @@ class MockApi(
         return epics.getValue(repoId).getValue(epicId)
     }
 
-    override fun getGithubRepos(owner: String): List<GithubRepo> {
-        return githubRepos.getValue(owner)
+    override fun getGithubReposByOrg(org: String): List<GithubRepo> {
+        return githubRepos.getValue(org)
+    }
+
+    override fun getGithubReposByUser(user: String): List<GithubRepo> {
+        return githubRepos.getValue(user)
     }
 
     override fun getGithubIssues(owner: String, repoName: String): List<GithubIssue> {

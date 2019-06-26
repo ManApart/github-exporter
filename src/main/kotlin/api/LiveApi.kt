@@ -39,12 +39,22 @@ class LiveApi(private val params: Params) : Api {
         }
     }
 
-    override fun getGithubRepos(owner: String): List<GithubRepo> {
-        val url = "https://api.github.com/orgs/$owner/repos"
+    override fun getGithubReposByOrg(org: String): List<GithubRepo> {
+        val url = "https://api.github.com/orgs/$org/repos"
         return try {
             return makeRepoCalls(url)
         } catch (e: Exception) {
-            println("Couldn't fetch Github Repos for $owner")
+            println("Couldn't fetch Github Repos for organization $org")
+            listOf()
+        }
+    }
+
+    override fun getGithubReposByUser(user: String): List<GithubRepo> {
+        val url = "https://api.github.com/users/$user/repos"
+        return try {
+            return makeRepoCalls(url)
+        } catch (e: Exception) {
+            println("Couldn't fetch Github Repos for user $user")
             listOf()
         }
     }

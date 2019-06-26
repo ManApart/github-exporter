@@ -3,7 +3,6 @@ class Params(args: Array<String>) {
     val owner = getArg(args, 0, "owner")
     val zenhubToken = getArg(args, 1, "none")
     val githubToken = getArg(args, 2, "none")
-    val previousCSVPath = getArg(args, 3, "none", false)
 
 
     private fun getArg(args: Array<String>, n: Int, default: String, required: Boolean = true) : String {

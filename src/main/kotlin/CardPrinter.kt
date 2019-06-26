@@ -59,6 +59,7 @@ class CardPrinter(private val api: Api) {
 
     private fun getAllGithubIssues(owner: String, repos: List<GithubRepo>): List<GithubIssue> {
         return repos.map { repo ->
+            println("Fetching issues for repo ${repo.name}")
             val issues = api.getGithubIssues(owner, repo.name).filter { it.pull_request == null }
             issues.forEach {
                 it.repoId = repo.id

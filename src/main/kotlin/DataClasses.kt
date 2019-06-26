@@ -35,3 +35,18 @@ data class Label(val id: Int, val name: String, val color: String)
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 data class PullRequest(val url: String)
+
+class Links(header: String?) {
+    val links = parseLinks(header)
+
+    private fun parseLinks(header: String?): List<Link> {
+        return header?.split(",")?.map { line ->
+            val parts = line.trim().split(";").map { it.trim() }
+            val url = parts[0].substring(1, parts[0].length - 1)
+            val rel = parts[1].substring(5, parts[1].length - 1)
+            Link(url, rel)
+        } ?: listOf()
+    }
+}
+
+class Link(val url: String, val rel: String)

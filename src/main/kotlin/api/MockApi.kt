@@ -18,11 +18,11 @@ class MockApi(
 ) : Api {
 
 
-    override fun getEpicsIds(repoId: Int): List<Int> {
+    override fun getEpicsIds(repoId: Int, retries: Int): List<Int> {
         return epicIds.getValue(repoId)
     }
 
-    override fun getEpic(repoId: Int, epicId: Int): Epic? {
+    override fun getEpic(repoId: Int, epicId: Int, retries: Int): Epic? {
         return epics.getValue(repoId).getValue(epicId)
     }
 

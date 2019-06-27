@@ -11,10 +11,12 @@ import com.fasterxml.jackson.module.kotlin.readValue
 import java.io.InputStream
 import java.net.URL
 
+const val MAX_RETRIES = 5
+const val RETRY_DELAY = 1000
 
 class LiveApi(private val params: Params) : Api {
 
-    override fun getEpicsIds(repoId: Int): List<Int> {
+    override fun getEpicsIds(repoId: Int, retries: Int): List<Int> {
         val url = "https://api.zenhub.io/p1/repositories/$repoId/epics?access_token=${params.zenhubToken}"
 
         return try {
@@ -23,19 +25,29 @@ class LiveApi(private val params: Params) : Api {
 
             issues.epic_issues.map { it.issue_number }
         } catch (e: Exception) {
-            println("Couldn't fetch Epic Ids for repo $repoId")
-            listOf()
+            if (retries < MAX_RETRIES) {
+                Thread.sleep((retries * RETRY_DELAY).toLong())
+                getEpicsIds(repoId, retries + 1)
+            } else {
+                println("Couldn't fetch Epic Ids for repo $repoId")
+                listOf()
+            }
         }
     }
 
-    override fun getEpic(repoId: Int, epicId: Int): Epic? {
+    override fun getEpic(repoId: Int, epicId: Int, retries: Int): Epic? {
         val url = "https://api.zenhub.io/p1/repositories/$repoId/epics/$epicId?access_token=${params.zenhubToken}"
         return try {
             val response = makeCall(url)
             jacksonObjectMapper().readValue(response)
         } catch (e: Exception) {
-            println("Couldn't fetch Epic $epicId for repo $repoId")
-            null
+            if (retries < MAX_RETRIES) {
+                Thread.sleep((retries * RETRY_DELAY).toLong())
+                getEpic(repoId, epicId, retries + 1)
+            } else {
+                println("Couldn't fetch Epic $epicId for repo $repoId")
+                null
+            }
         }
     }
 
@@ -59,14 +71,14 @@ class LiveApi(private val params: Params) : Api {
         }
     }
 
-    private fun makeRepoCalls(url: String) : List<GithubRepo> {
+    private fun makeRepoCalls(url: String): List<GithubRepo> {
         val connection = URL(url).openConnection()
         connection.setRequestProperty("Authorization", "Bearer ${params.githubToken}")
         val response = connection.getInputStream()
 
         val links = Links(connection.getHeaderField("Link"))
         val nextLink = links.links.firstOrNull { it.rel == "next" }
-        return if(nextLink != null){
+        return if (nextLink != null) {
             val repos = mutableListOf<GithubRepo>()
             repos.addAll(jacksonObjectMapper().readValue(response))
             repos.addAll(makeRepoCalls(nextLink.url))
@@ -86,14 +98,14 @@ class LiveApi(private val params: Params) : Api {
         }
     }
 
-    private fun makeIssueCalls(url: String) : List<GithubIssue> {
+    private fun makeIssueCalls(url: String): List<GithubIssue> {
         val connection = URL(url).openConnection()
         connection.setRequestProperty("Authorization", "Bearer ${params.githubToken}")
         val response = connection.getInputStream()
 
         val links = Links(connection.getHeaderField("Link"))
         val nextLink = links.links.firstOrNull { it.rel == "next" }
-        return if(nextLink != null){
+        return if (nextLink != null) {
             val issues = mutableListOf<GithubIssue>()
             issues.addAll(jacksonObjectMapper().readValue(response))
             issues.addAll(makeIssueCalls(nextLink.url))

@@ -7,8 +7,9 @@ class MockRunner {
     fun mockedMain() {
         val api = MockApi()
         val processor = CardProcessor(api)
-        val cards = processor.getCards("owner")
+        val cards = processor.getCards(listOf("owner"))
         printCards(cards)
         println("Done")
     }
+
 }

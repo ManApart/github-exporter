@@ -1,9 +1,9 @@
 import api.Api
 
 class CardProcessor(private val api: Api) {
-    fun getCards(owner: String): List<Card> {
-        println("Finding cards for $owner")
-        val repos = getRepos(owner)
+    fun getCards(owners: List<String>): List<Card> {
+        println("Finding cards for ${owners.joinToString ( ", " )}")
+        val repos = getRepos(owners)
         val repoMap = createRepoMap(repos)
         println("Found ${repos.size} repos")
 
@@ -11,14 +11,18 @@ class CardProcessor(private val api: Api) {
         val zenIssueMap = createZenIssueMap(epics)
         println("Found ${epics.size} epics")
 
-        val githubIssues = getAllGithubIssues(owner, repos)
-        val githubIssueMap = createGithubIssueMap(githubIssues, zenIssueMap, owner, repoMap)
+        val githubIssues = getAllGithubIssues(repos)
+        val githubIssueMap = createGithubIssueMap(githubIssues, zenIssueMap, repoMap)
         println("Found ${githubIssues.size} issues")
 
-        return getAllCards(githubIssues, zenIssueMap, githubIssueMap, owner)
+        return getAllCards(githubIssues, zenIssueMap, githubIssueMap, owners)
     }
 
-    private fun getRepos(owner: String) : List<GithubRepo> {
+    private fun getRepos(owners: List<String>): List<GithubRepo> {
+        return owners.map { getRepos(it) }.flatten()
+    }
+
+    private fun getRepos(owner: String): List<GithubRepo> {
         val repos = api.getGithubReposByOrg(owner)
         return if (repos.isNotEmpty()) {
             repos
@@ -44,6 +48,7 @@ class CardProcessor(private val api: Api) {
                 epic?.issues?.forEach {
                     it.epic = epic
                 }
+                epic?.owner = repo.owner.login
                 epic
 
             }
@@ -63,10 +68,10 @@ class CardProcessor(private val api: Api) {
         return map
     }
 
-    private fun getAllGithubIssues(owner: String, repos: List<GithubRepo>): List<GithubIssue> {
+    private fun getAllGithubIssues(repos: List<GithubRepo>): List<GithubIssue> {
         return repos.map { repo ->
             println("Fetching issues for repo ${repo.name}")
-            val issues = api.getGithubIssues(owner, repo.name).filter { it.pull_request == null }
+            val issues = api.getGithubIssues(repo.owner.login, repo.name).filter { it.pull_request == null }
             issues.forEach {
                 it.repoId = repo.id
                 it.repoName = repo.name
@@ -75,7 +80,7 @@ class CardProcessor(private val api: Api) {
         }.flatten()
     }
 
-    private fun createGithubIssueMap(issues: List<GithubIssue>, zenIssueMap: Map<Int, Map<Int, ZenIssue>>, owner: String, repoMap: Map<Int, GithubRepo>): Map<Int, Map<Int, GithubIssue>> {
+    private fun createGithubIssueMap(issues: List<GithubIssue>, zenIssueMap: Map<Int, Map<Int, ZenIssue>>, repoMap: Map<Int, GithubRepo>): Map<Int, Map<Int, GithubIssue>> {
         val map = mutableMapOf<Int, MutableMap<Int, GithubIssue>>()
         issues.forEach { issue ->
             map.putIfAbsent(issue.repoId, mutableMapOf())
@@ -83,7 +88,7 @@ class CardProcessor(private val api: Api) {
         }
 
         issues.forEach { issue ->
-            addMissingEpicIssue(zenIssueMap, issue, repoMap, owner, map)
+            addMissingEpicIssue(zenIssueMap, issue, repoMap, map)
         }
 
         return map
@@ -92,12 +97,12 @@ class CardProcessor(private val api: Api) {
     /**
      * Github does not seem to be returning ALL issues for a repo. This mess is to manually compensate for epic issues that are missing from the get all issues call.
      */
-    private fun addMissingEpicIssue(zenIssueMap: Map<Int, Map<Int, ZenIssue>>, issue: GithubIssue, repoMap: Map<Int, GithubRepo>, owner: String, githubIssues: MutableMap<Int, MutableMap<Int, GithubIssue>>) {
+    private fun addMissingEpicIssue(zenIssueMap: Map<Int, Map<Int, ZenIssue>>, issue: GithubIssue, repoMap: Map<Int, GithubRepo>, githubIssues: MutableMap<Int, MutableMap<Int, GithubIssue>>) {
         val epic = zenIssueMap[issue.repoId]?.get(issue.number)?.epic
         if (epic != null && githubIssues[epic.repo_id]?.get(epic.issue_number) == null) {
             val repoName = repoMap[epic.repo_id]?.name
             if (repoName != null) {
-                val githubEpic = api.getGithubIssue(owner, repoName, epic.issue_number)
+                val githubEpic = api.getGithubIssue(epic.owner, repoName, epic.issue_number)
                 if (githubEpic != null) {
                     githubEpic.repoId = epic.repo_id
                     githubEpic.repoName = repoName
@@ -106,6 +111,10 @@ class CardProcessor(private val api: Api) {
                 }
             }
         }
+    }
+
+    private fun getAllCards(githubIssues: List<GithubIssue>, zenIssueMap: Map<Int, Map<Int, ZenIssue>>, githubIssueMap: Map<Int, Map<Int, GithubIssue>>, owners: List<String>): List<Card> {
+        return owners.map { getAllCards(githubIssues,zenIssueMap, githubIssueMap, it) }.flatten()
     }
 
     private fun getAllCards(githubIssues: List<GithubIssue>, zenIssueMap: Map<Int, Map<Int, ZenIssue>>, githubIssueMap: Map<Int, Map<Int, GithubIssue>>, owner: String): List<Card> {
@@ -148,8 +157,6 @@ class CardProcessor(private val api: Api) {
                 ?: "", epicTitle, githubIssue.milestone?.title ?: "", zenIssue?.pipeline?.name
                 ?: "", updatedAt, assignees, labels)
     }
-
-
 
 
 }

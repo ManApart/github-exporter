@@ -9,7 +9,9 @@ data class GithubUser(val id: Int, val login: String)
 data class EpicIssues(val epic_issues: List<Epic>)
 
 @JsonIgnoreProperties(ignoreUnknown = true)
-data class Epic(var issue_number: Int, var repo_id: Int, val issue_url: String?, val issues: List<ZenIssue> = listOf())
+data class Epic(var issue_number: Int, var repo_id: Int, val issue_url: String?, val issues: List<ZenIssue> = listOf()) {
+    var owner = ""
+}
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 data class ZenIssue(val issue_number: Int, val repo_id: Int, val estimate: Estimate?, val is_epic: Boolean, val pipeline: Pipeline?) {

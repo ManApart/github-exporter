@@ -1,6 +1,6 @@
 class Params(args: Array<String>) {
     val mock = args.contains("mock")
-    val owners = getArg(args, 0, "owner").split(",")
+    val owners = getArg(args, 0, "owner").split(",").map { it.toLowerCase() }
     val zenhubToken = getArg(args, 1, "none")
     val githubToken = getArg(args, 2, "none")
 

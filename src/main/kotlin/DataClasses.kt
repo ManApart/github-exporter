@@ -27,6 +27,7 @@ data class Pipeline(val pipeline_id: String = "", val name: String = "")
 data class GithubIssue(val id: Int, val number: Int, val title: String, val labels: List<Label>, val body: String, val milestone: Milestone?, val updated_at: String = "", val pull_request: PullRequest? = null, val assignees: List<GithubUser> = listOf()) {
     var repoName = ""
     var repoId = 0
+    var owner = ""
 }
 
 @JsonIgnoreProperties(ignoreUnknown = true)

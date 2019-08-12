@@ -2,7 +2,7 @@ import api.Api
 
 class CardProcessor(private val api: Api) {
     fun getCards(owners: List<String>): List<Card> {
-        println("Finding cards for ${owners.joinToString ( ", " )}")
+        println("Finding cards for ${owners.joinToString(", ")}")
         val repos = getRepos(owners)
         val repoMap = createRepoMap(repos)
         println("Found ${repos.size} repos")
@@ -40,6 +40,7 @@ class CardProcessor(private val api: Api) {
 
 
     private fun getAllEpics(repos: List<GithubRepo>): List<Epic> {
+        val owner = repos.first().owner.login.toLowerCase()
         return repos.map { repo ->
             api.getEpicsIds(repo.id, 0).mapNotNull { epicId ->
                 val epic = api.getEpic(repo.id, epicId, 0)
@@ -48,7 +49,7 @@ class CardProcessor(private val api: Api) {
                 epic?.issues?.forEach {
                     it.epic = epic
                 }
-                epic?.owner = repo.owner.login
+                epic?.owner = owner
                 epic
 
             }
@@ -75,6 +76,7 @@ class CardProcessor(private val api: Api) {
             issues.forEach {
                 it.repoId = repo.id
                 it.repoName = repo.name
+                it.owner = repo.owner.login.toLowerCase()
             }
             issues
         }.flatten()
@@ -114,13 +116,15 @@ class CardProcessor(private val api: Api) {
     }
 
     private fun getAllCards(githubIssues: List<GithubIssue>, zenIssueMap: Map<Int, Map<Int, ZenIssue>>, githubIssueMap: Map<Int, Map<Int, GithubIssue>>, owners: List<String>): List<Card> {
-        return owners.map { getAllCards(githubIssues,zenIssueMap, githubIssueMap, it) }.flatten()
+        return owners.map { getAllCards(githubIssues, zenIssueMap, githubIssueMap, it) }.flatten()
     }
 
     private fun getAllCards(githubIssues: List<GithubIssue>, zenIssueMap: Map<Int, Map<Int, ZenIssue>>, githubIssueMap: Map<Int, Map<Int, GithubIssue>>, owner: String): List<Card> {
-        return githubIssues.mapNotNull { githubIssue ->
-            getCardInfo(githubIssue, zenIssueMap, githubIssueMap, owner)
-        }
+        return githubIssues
+                .filter { it.owner == owner }
+                .mapNotNull { githubIssue ->
+                    getCardInfo(githubIssue, zenIssueMap, githubIssueMap, owner)
+                }
     }
 
     private fun getCardInfo(githubIssue: GithubIssue, zenIssueMap: Map<Int, Map<Int, ZenIssue>>, githubIssueMap: Map<Int, Map<Int, GithubIssue>>, owner: String): Card? {

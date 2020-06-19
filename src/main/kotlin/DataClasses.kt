@@ -24,7 +24,7 @@ data class Estimate(val value: Int)
 data class Pipeline(val pipeline_id: String = "", val name: String = "")
 
 @JsonIgnoreProperties(ignoreUnknown = true)
-data class GithubIssue(val id: Int, val number: Int, val title: String, val labels: List<Label>, val body: String, val milestone: Milestone?, val updated_at: String = "", val pull_request: PullRequest? = null, val assignees: List<GithubUser> = listOf()) {
+data class GithubIssue(val id: Int, val number: Int, val title: String, val labels: List<Label>, val body: String, val milestone: Milestone?, val updated_at: String = "", val pull_request: PullRequest? = null, val assignees: List<GithubUser> = listOf(), val state: String = "") {
     var repoName = ""
     var repoId = 0
     var owner = ""

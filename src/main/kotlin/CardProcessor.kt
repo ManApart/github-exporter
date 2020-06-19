@@ -157,8 +157,14 @@ class CardProcessor(private val api: Api) {
         val description = cleanNewLines(githubIssue.body)
         val updatedAt = formatDate(githubIssue.updated_at)
 
+        val status = if (githubIssue.state.equals("closed", ignoreCase = true)){
+            "Closed"
+        } else {
+            zenIssue?.pipeline?.name
+        }
+
         return Card(githubIssue.id, owner, repoName, githubIssue.number, githubIssue.title, description, zenIssue?.estimate?.value?.toString()
-                ?: "", epicTitle, githubIssue.milestone?.title ?: "", zenIssue?.pipeline?.name
+                ?: "", epicTitle, githubIssue.milestone?.title ?: "", status
                 ?: "", updatedAt, assignees, labels)
     }
 

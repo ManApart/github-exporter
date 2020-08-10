@@ -32,8 +32,8 @@ class CardProcessor(private val api: Api) {
         }
     }
 
-    private fun createRepoMap(repos: List<GithubRepo>): Map<Int, GithubRepo> {
-        val map = mutableMapOf<Int, GithubRepo>()
+    private fun createRepoMap(repos: List<GithubRepo>): Map<String, GithubRepo> {
+        val map = mutableMapOf<String, GithubRepo>()
         repos.forEach { map[it.id] = it }
         return map
     }
@@ -56,8 +56,8 @@ class CardProcessor(private val api: Api) {
         }.flatten()
     }
 
-    private fun createZenIssueMap(epics: List<Epic>): Map<Int, Map<Int, ZenIssue>> {
-        val map = mutableMapOf<Int, MutableMap<Int, ZenIssue>>()
+    private fun createZenIssueMap(epics: List<Epic>): Map<String, Map<String, ZenIssue>> {
+        val map = mutableMapOf<String, MutableMap<String, ZenIssue>>()
 
         epics.forEach { epic ->
             epic.issues.forEach { issue ->
@@ -82,8 +82,8 @@ class CardProcessor(private val api: Api) {
         }.flatten()
     }
 
-    private fun createGithubIssueMap(issues: List<GithubIssue>, zenIssueMap: Map<Int, Map<Int, ZenIssue>>, repoMap: Map<Int, GithubRepo>): Map<Int, Map<Int, GithubIssue>> {
-        val map = mutableMapOf<Int, MutableMap<Int, GithubIssue>>()
+    private fun createGithubIssueMap(issues: List<GithubIssue>, zenIssueMap: Map<String, Map<String, ZenIssue>>, repoMap: Map<String, GithubRepo>): Map<String, Map<String, GithubIssue>> {
+        val map = mutableMapOf<String, MutableMap<String, GithubIssue>>()
         issues.forEach { issue ->
             map.putIfAbsent(issue.repoId, mutableMapOf())
             map[issue.repoId]!![issue.number] = issue
@@ -99,7 +99,7 @@ class CardProcessor(private val api: Api) {
     /**
      * Github does not seem to be returning ALL issues for a repo. This mess is to manually compensate for epic issues that are missing from the get all issues call.
      */
-    private fun addMissingEpicIssue(zenIssueMap: Map<Int, Map<Int, ZenIssue>>, issue: GithubIssue, repoMap: Map<Int, GithubRepo>, githubIssues: MutableMap<Int, MutableMap<Int, GithubIssue>>) {
+    private fun addMissingEpicIssue(zenIssueMap: Map<String, Map<String, ZenIssue>>, issue: GithubIssue, repoMap: Map<String, GithubRepo>, githubIssues: MutableMap<String, MutableMap<String, GithubIssue>>) {
         val epic = zenIssueMap[issue.repoId]?.get(issue.number)?.epic
         if (epic != null && githubIssues[epic.repo_id]?.get(epic.issue_number) == null) {
             val repoName = repoMap[epic.repo_id]?.name
@@ -115,11 +115,11 @@ class CardProcessor(private val api: Api) {
         }
     }
 
-    private fun getAllCards(githubIssues: List<GithubIssue>, zenIssueMap: Map<Int, Map<Int, ZenIssue>>, githubIssueMap: Map<Int, Map<Int, GithubIssue>>, owners: List<String>): List<Card> {
+    private fun getAllCards(githubIssues: List<GithubIssue>, zenIssueMap: Map<String, Map<String, ZenIssue>>, githubIssueMap: Map<String, Map<String, GithubIssue>>, owners: List<String>): List<Card> {
         return owners.map { getAllCards(githubIssues, zenIssueMap, githubIssueMap, it) }.flatten()
     }
 
-    private fun getAllCards(githubIssues: List<GithubIssue>, zenIssueMap: Map<Int, Map<Int, ZenIssue>>, githubIssueMap: Map<Int, Map<Int, GithubIssue>>, owner: String): List<Card> {
+    private fun getAllCards(githubIssues: List<GithubIssue>, zenIssueMap: Map<String, Map<String, ZenIssue>>, githubIssueMap: Map<String, Map<String, GithubIssue>>, owner: String): List<Card> {
         return githubIssues
                 .filter { it.owner == owner }
                 .mapNotNull { githubIssue ->
@@ -127,7 +127,7 @@ class CardProcessor(private val api: Api) {
                 }
     }
 
-    private fun getCardInfo(githubIssue: GithubIssue, zenIssueMap: Map<Int, Map<Int, ZenIssue>>, githubIssueMap: Map<Int, Map<Int, GithubIssue>>, owner: String): Card? {
+    private fun getCardInfo(githubIssue: GithubIssue, zenIssueMap: Map<String, Map<String, ZenIssue>>, githubIssueMap: Map<String, Map<String, GithubIssue>>, owner: String): Card? {
         val zenIssue = zenIssueMap[githubIssue.repoId]?.get(githubIssue.number)
         val epic = zenIssue?.epic
         val epicTitle = when {

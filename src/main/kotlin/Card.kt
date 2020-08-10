@@ -1,7 +1,7 @@
-data class Card(val id: Int,
+data class Card(val id: String,
                 val organization: String,
                 val repoName: String,
-                val number: Int,
+                val number: String,
                 val title: String,
                 val description: String,
                 val estimate: String,
@@ -23,15 +23,19 @@ data class Card(val id: Int,
                 organization,
                 repoName,
                 number.toString(),
-                title,
-                description,
+                makePipeSafe(title),
+                makePipeSafe(description),
                 estimate,
-                epicTitle,
+                makePipeSafe(epicTitle),
                 milestone,
                 status,
                 lastUpdateTime,
                 assignees.joinToString(","),
                 labels.joinToString(",")
         ).joinToString("|")
+    }
+
+    fun makePipeSafe(value: String): String {
+        return value.replace("|", "[")
     }
 }

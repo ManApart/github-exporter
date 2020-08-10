@@ -24,17 +24,17 @@ class JsonParsingTest {
         assertNotNull(issues)
     }
 
-    @Test
-    fun zenhubEpicIssues() {
-        val epicIssues: EpicIssues = jacksonObjectMapper().readValue(ZENHUB_EPIC_ISSUES)
-        assertNotNull(epicIssues)
-    }
+    // @Test
+    // fun zenhubEpicIssues() {
+    //     val epicIssues: EpicIssues = jacksonObjectMapper().readValue(ZENHUB_EPIC_ISSUES)
+    //     assertNotNull(epicIssues)
+    // }
 
-    @Test
-    fun zenhubEpic() {
-        val epic: Epic = jacksonObjectMapper().readValue(ZENHUB_EPIC)
-        assertNotNull(epic)
-    }
+    // @Test
+    // fun zenhubEpic() {
+    //     val epic: Epic = jacksonObjectMapper().readValue(ZENHUB_EPIC)
+    //     assertNotNull(epic)
+    // }
 
     @Test
     fun links() {

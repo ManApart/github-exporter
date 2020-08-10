@@ -16,14 +16,14 @@ const val RETRY_DELAY = 1000
 
 class LiveApi(private val params: Params) : Api {
 
-    override fun getEpicsIds(repoId: Int, retries: Int): List<Int> {
+    override fun getEpicsIds(repoId: String, retries: Int): List<String> {
         val url = "https://api.zenhub.io/p1/repositories/$repoId/epics?access_token=${params.zenhubToken}"
 
         return try {
             val response = makeCall(url)
             val issues: EpicIssues = jacksonObjectMapper().readValue(response)
 
-            issues.epic_issues.map { it.issue_number }
+            issues.epic_issues.map { it.issue_number.toString() }
         } catch (e: Exception) {
             if (retries < MAX_RETRIES) {
                 Thread.sleep((retries * RETRY_DELAY).toLong())
@@ -35,7 +35,7 @@ class LiveApi(private val params: Params) : Api {
         }
     }
 
-    override fun getEpic(repoId: Int, epicId: Int, retries: Int): Epic? {
+    override fun getEpic(repoId: String, epicId: String, retries: Int): Epic? {
         val url = "https://api.zenhub.io/p1/repositories/$repoId/epics/$epicId?access_token=${params.zenhubToken}"
         return try {
             val response = makeCall(url)
@@ -115,7 +115,7 @@ class LiveApi(private val params: Params) : Api {
         }
     }
 
-    override fun getGithubIssue(owner: String, repoName: String, issueNumber: Int): GithubIssue? {
+    override fun getGithubIssue(owner: String, repoName: String, issueNumber: String): GithubIssue? {
         val url = "https://api.github.com/repos/$owner/$repoName/issues/$issueNumber"
         return try {
             val response = makeCall(url)
